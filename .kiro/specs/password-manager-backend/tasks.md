@@ -40,13 +40,13 @@ Property-based tests are included for the four core correctness properties the s
     - _Requirements: 14.1_
 
 - [-] 3. Implement common cross-cutting layer
-  - [-] 3.1 Implement error envelope, AppError, and global exception filter
+  - [x] 3.1 Implement error envelope, AppError, and global exception filter
     - Create `src/common/errors/app-error.ts` with error codes and an `AppError` class
     - Create `src/common/filters/all-exceptions.filter.ts` producing the consistent JSON error envelope `{ code, message }`, mapping known errors to status codes, returning 500 without stack traces/internal details for unexpected errors, and 404 for undefined routes
     - Register the filter globally in `main.ts`
     - _Requirements: 15.3, 15.4, 15.5_
 
-  - [ ] 3.2 Implement redaction-aware logging interceptor
+  - [-] 3.2 Implement redaction-aware logging interceptor
     - Create `src/common/interceptors/logging.interceptor.ts` that assigns/propagates a request id and logs request/response metadata
     - Redact ciphertext fields, account password values, master password, and blind-index inputs from all log output
     - Register the interceptor globally
