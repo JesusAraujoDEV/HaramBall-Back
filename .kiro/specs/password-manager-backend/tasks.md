@@ -46,13 +46,13 @@ Property-based tests are included for the four core correctness properties the s
     - Register the filter globally in `main.ts`
     - _Requirements: 15.3, 15.4, 15.5_
 
-  - [-] 3.2 Implement redaction-aware logging interceptor
+  - [x] 3.2 Implement redaction-aware logging interceptor
     - Create `src/common/interceptors/logging.interceptor.ts` that assigns/propagates a request id and logs request/response metadata
     - Redact ciphertext fields, account password values, master password, and blind-index inputs from all log output
     - Register the interceptor globally
     - _Requirements: 12.4_
 
-  - [ ]* 3.3 Write property test for log redaction (zero-knowledge guarantee)
+  - [x]* 3.3 Write property test for log redaction (zero-knowledge guarantee)
     - **Property: Zero-Knowledge — for any request/response containing ciphertext, password, or blind-index fields, the emitted log output never contains those values**
     - **Validates: Requirements 12.4**
 
