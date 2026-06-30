@@ -26,21 +26,21 @@ Property-based tests are included for the four core correctness properties the s
     - Test that a fully-populated environment validates successfully
     - _Requirements: 13.3_
 
-- [-] 2. Define persistence layer (Prisma schema and client)
-  - [-] 2.1 Author Prisma schema for the `haramball` schema
+- [x] 2. Define persistence layer (Prisma schema and client)
+  - [x] 2.1 Author Prisma schema for the `haramball` schema
     - Create `prisma/schema.prisma` with `multiSchema` enabled and schema `haramball`
     - Define models `Account`, `Entry`, `EntryTitleIndex`, `EntryTagIndex`, `RefreshToken` with UUID primary keys, the columns/types from the design (`text`, `text[]`, `bytea`/`Bytes`, `timestamptz`), unique `email`, and timestamps
     - Define FKs with `onDelete: Cascade` for entry→account, title/tag index→entry, and refresh token→account; add indexes on `entries.account_id`, `entry_title_index.blind_index`, and `entry_tag_index.blind_index`
     - Generate the initial migration
     - _Requirements: 14.1, 14.2, 14.3, 14.4, 9.5, 10.5_
 
-  - [ ] 2.2 Implement PrismaModule and PrismaService
+  - [x] 2.2 Implement PrismaModule and PrismaService
     - Create `src/prisma/prisma.module.ts` and `prisma.service.ts` managing connect/disconnect lifecycle
     - Export the Prisma client for injection into services
     - _Requirements: 14.1_
 
-- [ ] 3. Implement common cross-cutting layer
-  - [ ] 3.1 Implement error envelope, AppError, and global exception filter
+- [-] 3. Implement common cross-cutting layer
+  - [-] 3.1 Implement error envelope, AppError, and global exception filter
     - Create `src/common/errors/app-error.ts` with error codes and an `AppError` class
     - Create `src/common/filters/all-exceptions.filter.ts` producing the consistent JSON error envelope `{ code, message }`, mapping known errors to status codes, returning 500 without stack traces/internal details for unexpected errors, and 404 for undefined routes
     - Register the filter globally in `main.ts`
