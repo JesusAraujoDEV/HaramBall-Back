@@ -1,0 +1,94 @@
+// HaramBall password manager — Prisma schema
+// Zero-knowledge model: the server stores only ciphertext and opaque blind
+// indexes. No plaintext entry content or decryption keys are ever persisted.
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["haramball"]
+}
+
+/// A registered user. Authenticates to the API; owns entries.
+model Account {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  entries       Entry[]
+  refreshTokens RefreshToken[]
+
+  @@map("accounts")
+  @@schema("haramball")
+}
+
+/// A stored credential record. All content fields are opaque client ciphertext.
+model Entry {
+  id              String   @id @default(uuid()) @db.Uuid
+  accountId       String   @map("account_id") @db.Uuid
+  titleCiphertext String   @map("title_ciphertext")
+  bodyCiphertext  String?  @map("body_ciphertext")
+  tagsCiphertext  String[] @map("tags_ciphertext")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  account      Account            @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  titleIndexes EntryTitleIndex[]
+  tagIndexes   EntryTagIndex[]
+
+  @@index([accountId])
+  @@map("entries")
+  @@schema("haramball")
+}
+
+/// A keyed-HMAC blind index for an entry title (one row per searchable token).
+/// The server matches these by equality only; it cannot reverse them.
+model EntryTitleIndex {
+  id         String @id @default(uuid()) @db.Uuid
+  entryId    String @map("entry_id") @db.Uuid
+  blindIndex Bytes  @map("blind_index")
+
+  entry Entry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  @@index([entryId])
+  @@index([blindIndex])
+  @@map("entry_title_index")
+  @@schema("haramball")
+}
+
+/// A keyed-HMAC blind index for a single entry tag.
+model EntryTagIndex {
+  id         String @id @default(uuid()) @db.Uuid
+  entryId    String @map("entry_id") @db.Uuid
+  blindIndex Bytes  @map("blind_index")
+
+  entry Entry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  @@index([entryId])
+  @@index([blindIndex])
+  @@map("entry_tag_index")
+  @@schema("haramball")
+}
+
+/// A persisted, revocable refresh token. Only the hash of the token is stored.
+model RefreshToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  accountId String    @map("account_id") @db.Uuid
+  tokenHash Bytes     @map("token_hash")
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz(6)
+  revokedAt DateTime? @map("revoked_at") @db.Timestamptz(6)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId])
+  @@index([tokenHash])
+  @@map("refresh_tokens")
+  @@schema("haramball")
+}
